@@ -20,11 +20,13 @@
 
 pub mod absm;
 pub mod animation;
+pub mod biosphere_help;
 pub mod collider;
 pub mod curve_editor;
 pub mod inspector;
 pub mod material;
 pub mod probe;
+pub mod quantum_genesis;
 pub mod ragdoll;
 pub mod settings;
 pub mod stats;
