@@ -24,6 +24,7 @@ members = [
     "fyrox-material",
     "fyrox-graphics-gl",
     "fyrox-biosphere",
+    "mythos-runtime",
     "qgenesis-tool"]
 resolver = "2"
 

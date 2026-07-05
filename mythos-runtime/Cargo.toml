@@ -1,0 +1,9 @@
+[package]
+name = "mythos-runtime"
+version = "0.1.0"
+edition = "2021"
+description = "BioSpark simulation runtime — Fyrox ScriptTrait components driven by the narrative engine"
+
+[dependencies]
+fyrox = { path = "../fyrox" }
+fyrox-biosphere = { path = "../fyrox-biosphere" }

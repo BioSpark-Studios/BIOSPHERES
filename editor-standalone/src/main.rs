@@ -22,6 +22,7 @@ use clap::Parser;
 use fyrox::core::log::Log;
 use fyrox::event_loop::EventLoop;
 use fyroxed_base::{Editor, StartupData};
+use mythos_runtime::MythosPlugin;
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -57,5 +58,7 @@ fn main() {
         None
     };
 
-    Editor::new(startup_data).run(EventLoop::new().unwrap())
+    let mut editor = Editor::new(startup_data);
+    editor.add_game_plugin(MythosPlugin::default());
+    editor.run(EventLoop::new().unwrap())
 }

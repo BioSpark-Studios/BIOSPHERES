@@ -11,31 +11,6 @@ use crate::{
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-mod bdna_bits_serde {
-    use serde::{Deserializer, Serializer, de::{SeqAccess, Visitor}, ser::SerializeSeq};
-
-    pub fn serialize<S: Serializer>(bits: &[bool; 64], ser: S) -> Result<S::Ok, S::Error> {
-        let mut seq = ser.serialize_seq(Some(64))?;
-        for b in bits { seq.serialize_element(b)?; }
-        seq.end()
-    }
-
-    pub fn deserialize<'de, D: Deserializer<'de>>(de: D) -> Result<[bool; 64], D::Error> {
-        struct V;
-        impl<'de> Visitor<'de> for V {
-            type Value = [bool; 64];
-            fn expecting(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-                write!(f, "array of 64 booleans")
-            }
-            fn visit_seq<A: SeqAccess<'de>>(self, mut seq: A) -> Result<[bool; 64], A::Error> {
-                let mut bits = [false; 64];
-                for slot in &mut bits { *slot = seq.next_element()?.unwrap_or(false); }
-                Ok(bits)
-            }
-        }
-        de.deserialize_seq(V)
-    }
-}
 
 // ── Genesis Container (Level 0 — Seal) ─────────────────────────────────────
 
@@ -123,9 +98,8 @@ pub struct Capsule {
     pub heraldic_current: CapsuleHeraldry,
     pub wire_type: WireType,
     pub bdna: BDnaRecord,
-    /// 64-bit binary DNA strand — compile-time guaranteed length.
-    #[serde(with = "bdna_bits_serde")]
-    pub bdna_bits: [bool; 64],
+    /// 64-bit binary DNA strand packed as a u64.
+    pub bdna_bits: u64,
     /// Required for sealed Genesis Containers.
     pub lineage_hash: String,
     pub payload: serde_json::Value,
@@ -433,7 +407,7 @@ impl Container {
             heraldic_current: heraldry,
             wire_type,
             bdna,
-            bdna_bits: [false; 64],
+            bdna_bits: 0u64,
             lineage_hash,
             payload,
             ports: Vec::new(),
@@ -609,7 +583,7 @@ mod tests {
 
         let cap = &genesis.mythos[0].containers[0].capsules[0];
         assert!(!cap.lineage_hash.is_empty());
-        assert_eq!(cap.bdna_bits.len(), 64);
+        assert_eq!(cap.bdna_bits, 0u64);
         assert_eq!(cap.heraldic_birth, CapsuleHeraldry::Trait);
         assert_eq!(cap.heraldic_current, CapsuleHeraldry::Trait);
     }
@@ -624,7 +598,7 @@ mod tests {
             heraldic_current: CapsuleHeraldry::Mark,
             wire_type: WireType::Data,
             bdna: BDnaRecord::new_original("Test", None),
-            bdna_bits: [false; 64],
+            bdna_bits: 0u64,
             lineage_hash: "0x0000000000000002".into(),
             payload: serde_json::Value::Null,
             ports: vec![],
